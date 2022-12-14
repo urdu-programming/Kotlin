@@ -10,7 +10,6 @@ import java.io.Serializable
 class Array1d {
     val file = File("D:1dArray.txt")
     var array: Array<String?> = arrayOfNulls(5)
-    var empty = 0
 
     @GetMapping("/getAll")
     fun getAll(): Array<String?> {
@@ -51,10 +50,22 @@ class Array1d {
     fun update(@PathVariable("id") id: Int, @PathVariable("value") value: String): Array<String?> {
         getData()
         array[id - 1] = value
-        file.bufferedWriter().flush()
-        array.forEach {
-            file.appendText(it + "\n")
+        insertToFile()
+        return array
+    }
+
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable("id") id: Int): Array<String?> {
+        getData()
+        array[id - 1] = null
+        for (i in id - 1..4) {
+            if (i + 1 <= 4) {
+                var temp = array[i]
+                array[i] = array[i + 1]
+                array[i + 1] = temp
+            }
         }
+        insertToFile()
         return array
     }
 
@@ -64,6 +75,12 @@ class Array1d {
             if (i > 4) return@forEachLine
             array[i] = it
             i++
+        }
+    }
+    private fun insertToFile() {
+        file.bufferedWriter().flush()
+        array.forEach {
+            file.appendText(it + "\n")
         }
     }
 }
